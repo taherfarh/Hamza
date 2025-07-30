@@ -1,0 +1,2 @@
+C:/Users/taher farh/Downloads/hamza-main/hamza-main/android/app/.cxx/RelWithDebInfo/1d223s6p/x86/CMakeFiles/edit_cache.dir
+C:/Users/taher farh/Downloads/hamza-main/hamza-main/android/app/.cxx/RelWithDebInfo/1d223s6p/x86/CMakeFiles/rebuild_cache.dir

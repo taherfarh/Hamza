@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "49260579487",
+    "project_id": "hamzandlove-f8e0c",
+    "storage_bucket": "hamzandlove-f8e0c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49260579487:android:802ba5f087a874974270aa",
+        "android_client_info": {
+          "package_name": "com.hamzalove.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBj245aiZpwerxADW7d516O3Tmgw09mtc0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
