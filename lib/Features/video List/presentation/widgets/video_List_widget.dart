@@ -114,7 +114,7 @@ class _LoginWidgetState extends State<VideoListWidget> {
                       context,
                       PlayVideoView(
                         coursname: widget.coursename,
-                        videoname: list[index].name,
+                        videoname: list[index].name, firebaseUrl: list[index].downloadLink,
                       ));
                 },
                 child: Card(

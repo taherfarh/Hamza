@@ -7,8 +7,9 @@ import 'package:no_screenshot/no_screenshot.dart';
 class PlayVideoView extends StatefulWidget{
    final String videoname;
   final String coursname;
+  final String firebaseUrl;
 
-  const PlayVideoView({Key? key, required this.coursname,required this.videoname}) : super(key: key);
+  const PlayVideoView({Key? key, required this.coursname,required this.videoname, required this.firebaseUrl}) : super(key: key);
 
   @override
   State<PlayVideoView> createState() => _VideoViewsState();
@@ -38,7 +39,7 @@ class _VideoViewsState extends State<PlayVideoView> {
                     color: Colors.white),
               ),
       ),
-      body: VideoPlayerPage(coursname: widget.coursname,videolink: widget.videoname,),
+      body: VideoPlayerPage(coursname: widget.coursname,videolink: widget.videoname, firebaseUrl: widget.firebaseUrl,),
     );
   }
 }

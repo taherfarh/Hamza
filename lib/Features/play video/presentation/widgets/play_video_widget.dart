@@ -12,6 +12,7 @@ import 'package:video_player/video_player.dart';
 class VideoPlayerPage extends StatefulWidget {
   final String videolink;
   final String coursname;
+  final String? firebaseUrl;
   final String? filePath;
   final bool isOffline;
 
@@ -19,6 +20,7 @@ class VideoPlayerPage extends StatefulWidget {
     Key? key,
     required this.coursname,
     required this.videolink,
+    this.firebaseUrl,
     this.filePath,
     this.isOffline = false,
   }) : super(key: key);
@@ -46,8 +48,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       localFilePath = widget.filePath!;
       _initializeVideo(fromFile: true, localPath: localFilePath);
     } else {
-      _initializeVideo(fromFile: false); // Online stream
-      _checkIfDownloaded(); // Check if downloaded
+      _initializeVideo(fromFile: false);
+      _checkIfDownloaded();
     }
   }
 
@@ -113,20 +115,17 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
   Future<void> _downloadAndSaveVideo() async {
     try {
+      final firebaseLink = widget.firebaseUrl;
+
+      if (firebaseLink == null || !firebaseLink.startsWith("http")) {
+        throw Exception("رابط التحميل غير متوفر أو غير صالح");
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Downloading video...")),
       );
 
-      final url =
-          'https://hamzandlove.com/GetVideoLink.php?course=${Uri.encodeComponent(widget.coursname)}&video=${Uri.encodeComponent(widget.videolink)}';
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode != 200) {
-        throw Exception("الرابط غير صالح");
-      }
-
-      final realVideoUrl = response.body.trim();
-      final videoResponse = await http.get(Uri.parse(realVideoUrl));
+      final videoResponse = await http.get(Uri.parse(firebaseLink));
       final dir = await getApplicationDocumentsDirectory();
       final filename = _buildFileName();
       final file = File("${dir.path}/$filename");
@@ -145,12 +144,12 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Download completed successfully!")),
+        SnackBar(content: Text("download completed")),
       );
     } catch (e) {
       print("Error downloading video: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to download video")),
+        SnackBar(content: Text("Download failed")),
       );
     }
   }

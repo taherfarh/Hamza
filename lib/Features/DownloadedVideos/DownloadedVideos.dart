@@ -155,7 +155,7 @@ class _DownloadedVideosPageState extends State<DownloadedVideosPage> {
                             coursname: video['coursename']!,
                             videolink: video['videoname']!,
                             filePath: video['path']!,
-                            isOffline: true,
+                            isOffline: true, firebaseUrl: '',
                           ),
                         ),
                       );
