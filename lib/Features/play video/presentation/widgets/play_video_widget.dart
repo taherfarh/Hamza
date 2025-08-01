@@ -39,6 +39,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   bool isDownloaded = false;
   late String localFilePath;
 
+  bool canDownloadToday = true;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +52,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     } else {
       _initializeVideo(fromFile: false);
       _checkIfDownloaded();
+      _checkDownloadLimit();
     }
   }
 
@@ -70,6 +73,26 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     if (file.existsSync() && downloaded.contains(filename)) {
       setState(() {
         isDownloaded = true;
+      });
+    }
+  }
+
+  Future<void> _checkDownloadLimit() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final now = DateTime.now();
+    final todayString = "${now.year}-${now.month}-${now.day}";
+
+    final lastDownloadDate = prefs.getString("download_date");
+    final downloadCount = prefs.getInt("download_count") ?? 0;
+
+    if (lastDownloadDate == todayString && downloadCount >= 3) {
+      setState(() {
+        canDownloadToday = false;
+      });
+    } else {
+      setState(() {
+        canDownloadToday = true;
       });
     }
   }
@@ -115,6 +138,32 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
   Future<void> _downloadAndSaveVideo() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final now = DateTime.now();
+      final todayString = "${now.year}-${now.month}-${now.day}";
+
+      final lastDownloadDate = prefs.getString("download_date");
+      int downloadCount = prefs.getInt("download_count") ?? 0;
+
+      if (lastDownloadDate == todayString) {
+        if (downloadCount >= 3) {
+          setState(() {
+            canDownloadToday = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    "You have reached the daily download limit of 3 videos.")),
+          );
+          return;
+        }
+      } else {
+        // بداية يوم جديد
+        downloadCount = 0;
+        await prefs.setString("download_date", todayString);
+      }
+
       final firebaseLink = widget.firebaseUrl;
 
       if (firebaseLink == null || !firebaseLink.startsWith("http")) {
@@ -132,19 +181,22 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
       await file.writeAsBytes(videoResponse.bodyBytes);
 
-      final prefs = await SharedPreferences.getInstance();
       final existing = prefs.getStringList('offline_videos') ?? [];
       if (!existing.contains(filename)) {
         existing.add(filename);
         await prefs.setStringList('offline_videos', existing);
       }
 
+      downloadCount += 1;
+      await prefs.setInt("download_count", downloadCount);
+
       setState(() {
         isDownloaded = true;
+        canDownloadToday = downloadCount < 3;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("download completed")),
+        SnackBar(content: Text("Download completed successfully!")),
       );
     } catch (e) {
       print("Error downloading video: $e");
@@ -179,9 +231,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        title: Text(widget.coursname),
+        automaticallyImplyLeading: true,
         actions: [
-          if (!isDownloaded && !widget.isOffline)
+          if (!isDownloaded && !widget.isOffline && canDownloadToday)
             IconButton(
               icon: Icon(
                 IconlyLight.download,
